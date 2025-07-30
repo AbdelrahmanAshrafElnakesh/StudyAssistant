@@ -1,0 +1,2761 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyAssist | Your Academic Success Partner</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📚%3C/text%3E%3C/svg%3E"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --primary-color: #4285f4;
+        --secondary-color: #34a853;
+        --accent-color: #fbbc05;
+        --error-color: #ea4335;
+      }
+
+      * {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f8f9fa;
+        color: #202124;
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Ensure body takes full viewport height */
+      }
+
+      .hero-section {
+        background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+        color: white;
+      }
+
+      .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        background-color: #e0e0e0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        transition: width 0.5s ease;
+        background: linear-gradient(90deg, #4285f4, #34a853);
+      }
+
+      .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: white;
+      }
+
+      .motivation-quote {
+        border-left: 4px solid var(--accent-color);
+        padding-left: 1rem;
+        font-style: italic;
+      }
+
+      /* Styles for form containers (modals) */
+      .form-container {
+        display: none; /* Hidden by default */
+        position: fixed; /* Use fixed to ensure it covers the viewport regardless of scroll */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(
+          248,
+          249,
+          250,
+          0.9
+        ); /* Semi-transparent background */
+        z-index: 10; /* Ensure it's above other content */
+        align-items: center; /* Center content vertically */
+        justify-content: center; /* Center content horizontally */
+        padding: 1rem;
+      }
+
+      .form-container.active {
+        display: flex; /* Show when active */
+      }
+
+      /* Main content and Dashboard content will be toggled */
+      #main-content,
+      #dashboard-content {
+        display: none; /* Hidden by default, will be controlled by JS */
+        flex-grow: 1; /* Allow content to take available space */
+        width: 100%; /* Ensure it takes full width when visible */
+      }
+
+      /* Animation for the form card */
+      @keyframes fadeInScale {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes fadeOutScale {
+        from {
+          opacity: 1;
+          transform: scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+      }
+
+      .form-container .card {
+        position: relative; /* For positioning the close button */
+        animation: fadeInScale 0.3s ease-out forwards; /* Apply animation on entry */
+      }
+
+      .form-container.closing .card {
+        animation: fadeOutScale 0.3s ease-in forwards; /* Apply animation on exit */
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.2s, color 0.2s;
+      }
+
+      .close-btn:hover {
+        background-color: #e5e7eb;
+        color: #1f2937;
+      }
+
+      /* Custom message box styles */
+      .message-box-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .message-box-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        position: relative;
+      }
+
+      .message-box-close {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+      }
+
+      /* Task completion styles */
+      .task-completed {
+        background-color: #d4edda !important; /* Light green background */
+        text-decoration: line-through;
+        color: #28a745; /* Darker green text */
+      }
+
+      /* Task content visibility */
+      .task-list-section.hidden {
+        display: none;
+      }
+      .task-toggle-icon.rotate {
+        transform: rotate(180deg);
+      }
+
+      /* Academic Goal specific styles */
+      .goal-card {
+        border: 1px dashed #d1d5db; /* Dashed border for "Add New Goal" */
+        background-color: #f9fafb;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px; /* Ensure consistent height */
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .goal-card:hover {
+        background-color: #eff6ff;
+        border-color: #93c5fd;
+      }
+
+      .goal-card.active-goal {
+        border: 1px solid;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        cursor: default;
+      }
+
+      .goal-progress-bar {
+        height: 6px;
+        border-radius: 3px;
+        background-color: #e0e7ff;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .goal-progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.5s ease-in-out;
+      }
+
+      .goal-card .edit-delete-icons {
+        display: none; /* Hidden by default */
+      }
+
+      .goal-card.active-goal .edit-delete-icons {
+        display: flex; /* Show when active */
+      }
+
+      /* New Goal Modal Styles */
+      #new-goal-modal-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 20;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+
+      #new-goal-modal-container.active {
+        display: flex;
+      }
+
+      #new-goal-modal-container .card {
+        animation: fadeInScale 0.3s ease-out forwards;
+      }
+
+      #new-goal-modal-container.closing .card {
+        animation: fadeOutScale 0.3s ease-in forwards;
+      }
+
+      /* Focus Timer Styles */
+      .timer-display {
+        font-family: "Roboto Mono", monospace; /* A monospaced font for digital look */
+        font-size: 3rem;
+        font-weight: bold;
+        color: #202124;
+        background-color: #e2e8f0; /* Light gray background */
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        min-width: 180px; /* Ensure consistent width */
+        text-align: center;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .timer-buttons button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: background-color 0.2s, transform 0.1s;
+      }
+      .timer-buttons button:active {
+        transform: translateY(1px);
+      }
+
+      /* Technique Carousel Styles */
+      .technique-carousel-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem; /* Space between arrows and content */
+        width: 100%;
+        max-width: 500px; /* Adjust as needed */
+        margin: 0 auto;
+      }
+
+      .technique-carousel-container {
+        flex-grow: 1;
+        position: relative;
+        overflow: hidden; /* Hide overflowing techniques */
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+        padding: 1rem;
+        min-height: 150px; /* Ensure consistent height for content */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .technique-slide {
+        display: none; /* Hidden by default */
+        animation: fadeIn 0.5s ease-out;
+        width: 100%; /* Take full width of container */
+      }
+      .technique-slide.active {
+        display: block; /* Show active slide */
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .carousel-arrow {
+        background-color: var(
+          --primary-color
+        ); /* Use primary color for arrows */
+        color: white;
+        border: none;
+        padding: 0.75rem; /* Larger touch target */
+        cursor: pointer;
+        border-radius: 50%;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0; /* Prevent shrinking */
+      }
+      .carousel-arrow:hover {
+        background-color: #3468c2; /* Darker shade on hover */
+        transform: scale(1.05);
+      }
+      .carousel-arrow:active {
+        transform: scale(0.95);
+      }
+      .carousel-arrow svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Motivational Quote Section Styles */
+      .motivational-quote-section {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color) 0%,
+          var(--secondary-color) 100%
+        ); /* Use primary and secondary colors */
+        color: white;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        margin-top: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        max-width: 600px; /* Adjust as needed for better layout */
+        width: 100%;
+      }
+
+      .motivational-quote-section .quote-icon {
+        background-color: rgba(255, 255, 255, 0.2);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem auto;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+        opacity: 0.8;
+      }
+
+      .motivational-quote-section .quote-text {
+        font-size: 1.5rem;
+        font-style: italic;
+        margin-bottom: 1rem;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .motivational-quote-section .quote-author {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      .motivational-quote-section .change-quote-btn {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        margin-top: 1.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+      }
+
+      .motivational-quote-section .change-quote-btn:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .motivational-quote-section .change-quote-btn:active {
+        transform: translateY(0);
+      }
+
+      /* Study Analytics Section Styles */
+      .study-analytics-section {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+        max-width: 600px;
+        width: 100%;
+      }
+
+      .study-analytics-section h3 {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #202124;
+        margin-bottom: 1.5rem;
+      }
+
+      .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+
+      .analytics-card {
+        background-color: #f8fafc;
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+      }
+
+      .analytics-card .label {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+      }
+
+      .analytics-card .value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #202124;
+      }
+
+      .analytics-card .sub-text {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm py-4">
+      <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div
+            class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
+          <h1
+            id="home-link"
+            class="text-xl font-bold text-gray-800 cursor-pointer"
+          >
+            StudyAssist
+          </h1>
+        </div>
+        <div class="hidden md:flex space-x-6">
+          <a href="#features" class="text-gray-600 hover:text-blue-600 nav-link"
+            >Features</a
+          >
+          <a
+            href="#time-tools"
+            class="text-gray-600 hover:text-blue-600 nav-link"
+            >Time Tools</a
+          >
+          <a
+            href="#how-it-works"
+            class="text-gray-600 hover:text-blue-600 nav-link"
+            >How It Works</a
+          >
+          <a
+            href="#testimonials"
+            class="text-gray-600 hover:text-blue-600 nav-link"
+            >Success Stories</a
+          >
+        </div>
+        <button
+          id="signup-nav-btn"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300"
+        >
+          Sign Up
+        </button>
+      </div>
+    </nav>
+
+    <!-- Sign Up Form Section (Integrated) -->
+    <section id="signup-form-container" class="form-container">
+      <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full card">
+        <button id="close-signup-btn" class="close-btn">&times;</button>
+        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">
+          Create Your Account
+        </h2>
+        <form id="signup-form">
+          <div class="mb-4">
+            <label
+              for="signup-username"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Username</label
+            >
+            <input
+              type="text"
+              id="signup-username"
+              name="username"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Your username"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="signup-email"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              id="signup-email"
+              name="email"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="signup-password"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="signup-password"
+              name="password"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Min. 8 characters"
+              required
+            />
+          </div>
+          <div class="mb-6">
+            <label
+              for="signup-confirm-password"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Confirm Password</label
+            >
+            <input
+              type="password"
+              id="signup-confirm-password"
+              name="confirm-password"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Confirm your password"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-300"
+          >
+            Sign Up
+          </button>
+        </form>
+        <p class="text-center text-gray-600 text-sm mt-6">
+          Already have an account?
+          <button
+            id="switch-to-login"
+            class="text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            Log In
+          </button>
+        </p>
+      </div>
+    </section>
+
+    <!-- Login Form Section (Integrated) -->
+    <section id="login-form-container" class="form-container">
+      <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full card">
+        <button id="close-login-btn" class="close-btn">&times;</button>
+        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">
+          Log In to Your Account
+        </h2>
+        <form id="login-form">
+          <div class="mb-4">
+            <label
+              for="login-email"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              id="login-email"
+              name="email"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div class="mb-6">
+            <label
+              for="login-password"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Your password"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-300"
+          >
+            Log In
+          </button>
+        </form>
+        <p class="text-center text-gray-600 text-sm mt-6">
+          Don't have an account?
+          <button
+            id="switch-to-signup"
+            class="text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            Sign Up
+          </button>
+        </p>
+        <p class="text-center text-gray-600 text-sm mt-2">
+          <a href="#" class="text-blue-600 hover:text-blue-800 font-semibold"
+            >Forgot Password?</a
+          >
+        </p>
+      </div>
+    </section>
+
+    <!-- Main Content Sections (Landing Page) -->
+    <div id="main-content" class="block">
+      <!-- Hero Section -->
+      <section class="hero-section py-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">
+            Ac hieve Your Academic Goals with Confidence
+          </h1>
+          <p class="text-xl mb-8 max-w-2xl mx-auto">
+            StudyAssist helps you plan, track, and excel in your academic
+            journey with personalized tools and motivation.
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <button
+              id="signup-hero-btn"
+              class="bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-md font-medium transition duration-300"
+            >
+              Sign Up Now
+            </button>
+            <button
+              id="login-hero-btn"
+              class="bg-transparent border border-white hover:bg-white hover:bg-opacity-10 px-6 py-3 rounded-md font-medium transition duration-300"
+            >
+              Log In
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section id="features" class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-12">
+            Features Designed for Academic Success
+          </h2>
+          <div class="grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="card bg-white p-6 rounded-lg shadow-md">
+              <div class="feature-icon bg-blue-100 text-blue-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Smart Goal Setting</h3>
+              <p class="text-gray-600 mb-4">
+                Break down your academic year into manageable goals with our
+                SMART framework.
+              </p>
+              <div class="flex justify-center">
+                <img
+                  src="https://img-cdn.inc.com/image/upload/f_webp,c_fit,w_1920,q_auto/images/panoramic/shutterstock_318915104_360067.jpg"
+                  alt="Student setting academic goals on digital planner with colorful milestones"
+                  class="rounded-md"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/E0E7FF/4285F4?text=Smart+Goals';"
+                />
+              </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="card bg-white p-6 rounded-lg shadow-md">
+              <div class="feature-icon bg-green-100 text-green-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Progress Tracking</h3>
+              <p class="text-gray-600 mb-4">
+                Visualize your progress with intuitive charts and analytics to
+                stay on track.
+              </p>
+              <div class="flex justify-center">
+                <img
+                  src="https://media.eup-prod.co.za/af-south-1/thumbnails/products/Business_Process_Modelling_Face_to_face_in_Pretoria_87ed66d8_thumbnail_4096.jpg"
+                  alt="Digital dashboard showing academic progress charts with upward trend indicators"
+                  class="rounded-md"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/D4EDDA/34A853?text=Progress+Tracking';"
+                />
+              </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="card bg-white p-6 rounded-lg shadow-md">
+              <div class="feature-icon bg-yellow-100 text-yellow-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                  />
+                </svg>
+              </div>
+              <p class="text-gray-600 mb-4">
+                Daily inspiration, achievement badges, and peer comparison to
+                keep you motivated.
+              </p>
+              <div class="flex justify-center">
+                <img
+                  src="https://assets.tes.com/magazine-attachments/s3fs-public/styles/amp_1200x675_16_9/public/media/image/archived/motivation.jpg?itok=HAdMQVgj"
+                  alt="Motivational achievement badges displayed on mobile app with celebratory animation"
+                  class="rounded-md"
+                  style="margin-top: 20px"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/FFF3CD/FBBC05?text=Motivation+Tools';"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Time Management Tools Section -->
+      <section id="time-tools" class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-12">
+            Essential Time Management Tools
+          </h2>
+          <div class="grid md:grid-cols-3 gap-8">
+            <div class="card bg-white p-6 rounded-lg shadow-md">
+              <div class="feature-icon bg-blue-100 text-blue-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Pomodoro Timer</h3>
+              <p class="text-gray-600 mb-4">
+                Boost productivity with focused 25-minute study sessions and
+                5-minute breaks.
+              </p>
+              <div class="flex justify-center">
+                <img
+                  src="https://i.etsystatic.com/36262552/r/il/aa81a7/4191400611/il_570xN.4191400611_23uk.jpg"
+                  alt="Digital timer showing 25-minute countdown with break indicators"
+                  class="rounded-md"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/E0E7FF/4285F4?text=Pomodoro+Timer';"
+                />
+              </div>
+            </div>
+
+            <div class="card bg-white p-6 rounded-lg shadow-md">
+              <div class="feature-icon bg-purple-100 text-purple-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Study Planner</h3>
+              <p class="text-gray-600 mb-4">
+                Visual weekly schedule to allocate time for all subjects and
+                assignments.
+              </p>
+              <div class="flex justify-center">
+                <img
+                  src="https://res.cloudinary.com/highereducation/image/upload/v1533591754/TheBestColleges.org/study-notebooks.jpg"
+                  alt="Color-coded weekly study schedule with time blocks"
+                  class="rounded-md"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/EDE9FE/8B5CF6?text=Study+Planner';"
+                />
+              </div>
+            </div>
+
+            <div class="card bg-white p-6 rounded-lg shadow-md">
+              <div class="feature-icon bg-green-100 text-green-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold mb-3">Task Manager</h3>
+              <p class="text-gray-600 mb-4">
+                Prioritize and track assignments, projects, and study sessions
+                with deadlines.
+              </p>
+              <div class="flex justify-center">
+                <img
+                  src="https://media.istockphoto.com/id/1011182136/photo/check-off-completed-tasks-on-a-to-do-list.jpg?s=612x612&w=0&k=20&c=1iYcULZh7JYHaJDldIfG8h3CxWwaDnZnvltkYon66h4="
+                  alt="Digital task list with priority flags and completion status"
+                  class="rounded-md"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/D4EDDA/34A853?text=Task+Manager';"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works Section -->
+      <section id="how-it-works" class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-12">
+            How StudyAssist Helps You Succeed
+          </h2>
+
+          <div class="flex flex-col md:flex-row items-center mb-12 gap-8">
+            <div class="md:w-1/2">
+              <h3 class="text-2xl font-semibold mb-4">
+                1. Define Your Academic Vision
+              </h3>
+              <p class="text-gray-600 mb-4">
+                Start by outlining your ultimate academic goals for the year.
+                Whether it's achieving top grades, mastering specific subjects,
+                or developing new study habits, we help you articulate your
+                vision clearly.
+              </p>
+              <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                <div class="flex items-center mb-2">
+                  <div
+                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3"
+                  >
+                    <span class="text-blue-600 font-bold">1</span>
+                  </div>
+                  <h4 class="font-medium">Clarify Your Goals</h4>
+                </div>
+                <div class="flex items-center mb-2">
+                  <div
+                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3"
+                  >
+                    <span class="text-blue-600 font-bold">2</span>
+                  </div>
+                  <h4 class="font-medium">Break Them Into Milestones</h4>
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3"
+                  >
+                    <span class="text-blue-600 font-bold">3</span>
+                  </div>
+                  <h4 class="font-medium">Set Weekly Targets</h4>
+                </div>
+              </div>
+            </div>
+            <div class="md:w-1/2">
+              <img
+                src="https://st3.depositphotos.com/13324256/19088/i/450/depositphotos_190885170-stock-photo-stack-books-diploma-graduation-hat.jpg"
+                alt="Student organizing academic goals using digital planner with colorful categories"
+                class="rounded-lg shadow-md"
+                onerror="this.onerror=null;this.src='https://placehold.co/400x250/E0E7FF/4285F4?text=Academic+Vision';"
+              />
+            </div>
+          </div>
+
+          <div
+            class="flex flex-col md:flex-row-reverse items-center mb-12 gap-8"
+          >
+            <div class="md:w-1/2">
+              <h3 class="text-2xl font-semibold mb-4">
+                2. Track Your Daily Progress
+              </h3>
+              <p class="text-gray-600 mb-4">
+                Our intuitive dashboard shows exactly how much progress you're
+                making toward each goal. Visual indicators help you stay
+                accountable and make adjustments when needed.
+              </p>
+              <!-- Removed the progress bars section as requested -->
+            </div>
+            <div class="md:w-1/2">
+              <img
+                src="https://blog.weekdone.com/wp-content/uploads/2015/07/low-vs-high-performance-01.png"
+                alt="Digital dashboard with progress bars showing completion percentages for different subjects"
+                class="rounded-lg shadow-md"
+                onerror="this.onerror=null;this.src='https://placehold.co/400x250/D4EDDA/34A853?text=Daily+Progress';"
+              />
+            </div>
+          </div>
+
+          <div class="flex flex-col md:flex-row items-center gap-8">
+            <div class="md:w-1/2">
+              <h3 class="text-2xl font-semibold mb-4">
+                3. Stay Motivated & Adapt
+              </h3>
+              <p class="text-gray-600 mb-4">
+                Receive personalized encouragement, celebrate milestones, and
+                adjust your plan based on performance insights and changing
+                circumstances.
+              </p>
+              <!-- Removed the motivational quote and badges section as requested -->
+            </div>
+            <div class="md:w-1/2">
+              <img
+                src="https://img-cdn.inc.com/image/upload/f_webp,c_fit,w_1920,q_auto/images/panoramic/getty_506910700_367867.jpg"
+                alt="Mobile notifications showing motivational messages and achievement badges earned"
+                class="rounded-lg shadow-md"
+                onerror="this.onerror=null;this.src='https://placehold.co/400x250/FFF3CD/FBBC05?text=Stay+Motivated';"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Motivation Banner -->
+      <section
+        class="py-12 bg-gradient-to-r from-blue-500 to-green-500 text-white"
+      >
+        <div class="max-w-4xl mx-auto px-4 text-center">
+          <h2 class="text-3xl font-bold mb-6">
+            You're Just 4 Weeks Away From Better Grades
+          </h2>
+          <p class="text-xl mb-8">
+            Research shows that students who consistently use StudyAssist for 4
+            weeks improve their grades by an average of 1.5 letter grades.
+          </p>
+          <button
+            id="signup-motivation-btn"
+            class="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-md font-medium text-lg transition duration-300"
+          >
+            Sign Up & Start Learning
+          </button>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section id="testimonials" class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+          <h2 class="text-3xl font-bold text-center mb-12">
+            Success Stories From Our Students
+          </h2>
+
+          <div class="grid md:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div
+              class="card bg-white p-6 rounded-lg shadow-md border border-gray-100"
+            >
+              <div class="flex items-center mb-4">
+                <img
+                  src="https://randomuser.me/api/portraits/women/68.jpg"
+                  alt="Portrait of Sarah Johnson, computer science graduate with glasses"
+                  class="w-12 h-12 rounded-full mr-4"
+                  onerror="this.onerror=null;this.src='https://placehold.co/48x48/E0E7FF/4285F4?text=SJ';"
+                />
+                <div>
+                  <h4 class="font-semibold">Sarah Johnson</h4>
+                  <p class="text-gray-500 text-sm">Computer Science Graduate</p>
+                </div>
+              </div>
+              <p class="text-gray-600 mb-4">
+                "StudyAssist helped me organize my senior year project and
+                coursework. I went from struggling to keep up to graduating with
+                honors!"
+              </p>
+              <div class="flex">
+                <span class="text-yellow-400">★★★★★</span>
+              </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div
+              class="card bg-white p-6 rounded-lg shadow-md border border-gray-100"
+            >
+              <div class="flex items-center mb-4">
+                <img
+                  src="https://randomuser.me/api/portraits/men/45.jpg"
+                  alt="Portrait of Michael Chen, engineering student wearing university hoodie"
+                  class="w-12 h-12 rounded-full mr-4"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/D4EDDA/34A853?text=Image+Not+Found';"
+                />
+                <div>
+                  <h4 class="font-semibold">Michael Chen</h4>
+                  <p class="text-gray-500 text-sm">Engineering Student</p>
+                </div>
+              </div>
+              <p class="text-gray-600 mb-4">
+                "The progress tracking kept me motivated through tough
+                semesters. Seeing the visual proof that I was improving helped
+                me push through."
+              </p>
+              <div class="flex">
+                <span class="text-yellow-400">★★★★★</span>
+              </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div
+              class="card bg-white p-6 rounded-lg shadow-md border border-gray-100"
+            >
+              <div class="flex items-center mb-4">
+                <img
+                  src="https://randomuser.me/api/portraits/women/72.jpg"
+                  alt="Portrait of Emma Rodriguez, medical student in white coat"
+                  class="w-12 h-12 rounded-full mr-4"
+                  onerror="this.onerror=null;this.src='https://placehold.co/400x250/FFF3CD/FBBC05?text=Image+Not+Found';"
+                />
+                <div>
+                  <h4 class="font-semibold">Emma Rodriguez</h4>
+                  <p class="text-gray-500 text-sm">Medical Student</p>
+                </div>
+              </div>
+              <p class="text-gray-600 mb-4">
+                "As a med student, balancing coursework and rotations was
+                overwhelming. StudyAssist's scheduling tools were a game-changer
+                for me."
+              </p>
+              <div class="flex">
+                <span class="text-yellow-400">★★★★★</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sign Up Banner -->
+      <section class="py-20 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+          <h2 class="text-3xl font-bold mb-6">
+            Ready to Boost Your Academic Success?
+          </h2>
+          <p class="text-xl mb-8 max-w-2xl mx-auto">
+            Create your free account to access all StudyAssist features and
+            start improving today.
+          </p>
+          <div class="flex justify-center">
+            <button
+              id="signup-footer-btn"
+              class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-md font-medium text-lg transition duration-300"
+            >
+              Create Your Free Account
+            </button>
+          </div>
+          <p class="mt-4 text-sm text-gray-400">
+            Already have an account?
+            <button
+              id="login-footer-btn"
+              class="text-blue-400 hover:text-blue-300"
+            >
+              Log In
+            </button>
+          </p>
+        </div>
+      </section>
+    </div>
+    <!-- End of main-content -->
+
+    <!-- Dashboard Content Section (Initially Hidden) -->
+    <div
+      id="dashboard-content"
+      class="hidden flex-grow flex flex-col items-center justify-center p-4 bg-gray-50"
+    >
+      <div class="text-center mb-8">
+        <h1 class="text-5xl font-extrabold text-gray-900 mb-4">Welcome!</h1>
+        <h2 class="text-3xl font-semibold text-gray-700 mb-2">
+          Welcome,
+          <span id="dashboard-username" class="text-blue-600">Abdelrahman</span
+          >!
+        </h2>
+        <p class="text-lg text-gray-600">
+          You are logged in as
+          <span id="dashboard-user-email" class="text-blue-600"
+            >bodyelnakesh@gmail.com</span
+          >.
+        </p>
+      </div>
+
+      <!-- Today's Tasks Section -->
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-800">Today's Tasks</h3>
+          <button
+            id="toggle-tasks-btn"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 transform rotate-90 task-toggle-icon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+        </div>
+        <!-- Modified task input section to include goal dropdown inline -->
+        <div id="task-input-section" class="flex items-center space-x-2 w-full">
+          <input
+            type="text"
+            id="new-task-input"
+            class="flex-grow shadow-sm appearance-none border rounded-md py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Add a new task..."
+          />
+          <select
+            id="task-goal-select"
+            class="w-1/3 md:w-1/4 shadow-sm appearance-none border rounded-md py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">No Associated Goal</option>
+          </select>
+          <button
+            id="add-task-btn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md focus:outline-none focus:shadow-outline transition duration-300"
+          >
+            Add Task
+          </button>
+        </div>
+        <ul id="task-list" class="mt-4 space-y-2 task-list-section">
+          <!-- Tasks will be added here dynamically -->
+        </ul>
+      </div>
+
+      <!-- Academic Goals Section -->
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-800">Your Academic Goals</h3>
+          <button
+            id="add-goal-btn"
+            class="flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-1"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Add Goal
+          </button>
+        </div>
+        <div id="goals-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Academic goals will be added dynamically here -->
+          <!-- Add New Goal Card -->
+          <div
+            id="add-new-goal-card"
+            class="goal-card p-4 rounded-lg text-gray-400 hover:text-blue-600"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10 w-10 mb-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span class="font-semibold">Add New Goal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Focus Timer Section -->
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-800">Focus Timer</h3>
+        </div>
+        <div
+          class="flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div class="flex-shrink-0">
+            <div id="timer-display" class="timer-display">25:00</div>
+            <div class="timer-buttons flex justify-center space-x-4 mt-4">
+              <button
+                id="start-timer-btn"
+                class="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Start
+              </button>
+              <button
+                id="pause-timer-btn"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white"
+              >
+                Pause
+              </button>
+              <button
+                id="reset-timer-btn"
+                class="bg-red-500 hover:bg-red-600 text-white"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+          <div class="flex-grow text-gray-700 md:pl-6">
+            <div
+              id="technique-display-area"
+              class="technique-carousel-container"
+            >
+              <!-- Techniques will be dynamically loaded here -->
+              <div class="technique-slide active">
+                <h4 class="font-medium text-lg mb-2">Pomodoro Technique:</h4>
+                <p class="text-sm">
+                  Work for 25 minutes, then take a 5-minute break. After four
+                  25-minute sessions, take a longer 15–30 minute break.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Motivational Quote Section -->
+      <div class="motivational-quote-section max-w-2xl w-full mb-8">
+        <div class="quote-icon">"</div>
+        <p id="motivational-quote-text" class="quote-text">
+          "The only way to do great work is to love what you do."
+        </p>
+        <p id="motivational-quote-author" class="quote-author">— Steve Jobs</p>
+        <button id="change-quote-btn" class="change-quote-btn">
+          New Quote
+        </button>
+      </div>
+
+      <!-- Study Analytics Section -->
+      <div class="study-analytics-section max-w-2xl w-full mb-8">
+        <h3 class="text-2xl font-bold text-gray-800">Study Analytics</h3>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="label">Total Study Time</div>
+            <div id="total-study-time" class="value">--h --m</div>
+            <div id="total-study-time-subtext" class="sub-text"></div>
+          </div>
+          <div class="analytics-card">
+            <div class="label">Most Productive Day</div>
+            <div id="most-productive-day" class="value">--</div>
+            <div id="most-productive-day-subtext" class="sub-text"></div>
+          </div>
+          <div class="analytics-card">
+            <div class="label">Focus Rate</div>
+            <div id="focus-rate" class="value">--%</div>
+            <div id="focus-rate-subtext" class="sub-text"></div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="logout-btn"
+        class="mt-8 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-md font-medium transition duration-300"
+      >
+        Log Out
+      </button>
+    </div>
+
+    <!-- New Academic Goal Modal -->
+    <section id="new-goal-modal-container" class="form-container">
+      <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full card">
+        <button id="close-new-goal-modal-btn" class="close-btn">&times;</button>
+        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">
+          New Academic Goal
+        </h2>
+        <form id="new-goal-form">
+          <div class="mb-4">
+            <label
+              for="goal-title"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Goal Title</label
+            >
+            <input
+              type="text"
+              id="goal-title"
+              name="goal-title"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="What do you want to achieve?"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="goal-description"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Description</label
+            >
+            <textarea
+              id="goal-description"
+              name="goal-description"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"
+              placeholder="Write a short description..."
+            ></textarea>
+          </div>
+          <div class="mb-4">
+            <label
+              for="goal-start-date"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >Start Date</label
+            >
+            <input
+              type="date"
+              id="goal-start-date"
+              name="goal-start-date"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+          <div class="mb-6">
+            <label
+              for="goal-end-date"
+              class="block text-gray-700 text-sm font-semibold mb-2"
+              >End Date</label
+            >
+            <input
+              type="date"
+              id="goal-end-date"
+              name="goal-end-date"
+              class="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-300"
+          >
+            Save Goal
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-12">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="grid md:grid-cols-3 gap-8">
+          <div>
+            <div class="flex items-center space-x-2 mb-4">
+              <div
+                class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-white">StudyAssist</h3>
+            </div>
+            <p class="mb-4">
+              Your partner in academic excellence and personal growth.
+            </p>
+            <!-- <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"
+                  />
+                </svg>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z"
+                  />
+                </svg>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                  />
+                </svg>
+              </a>
+            </div> -->
+          </div>
+
+          <div>
+            <h4 class="text-lg font-semibold text-white mb-4">Product</h4>
+            <ul class="space-y-2">
+              <li><a href="#features" class="hover:text-white">Features</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-lg font-semibold text-white mb-4">Resources</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="hover:text-white">Study Guides</a></li>
+              <li>
+                <a href="#features" class="hover:text-white">Academic Tips</a>
+              </li>
+              <li>
+                <a href="#testimonials" class="hover:text-white"
+                  >Success Stories</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+          <p>&copy; 2025 StudyAssist. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Custom Message Box HTML -->
+    <div id="message-box-overlay" class="message-box-overlay">
+      <div class="message-box-content">
+        <button id="message-box-close" class="message-box-close">
+          &times;
+        </button>
+        <p id="message-box-text" class="text-lg font-medium text-gray-800"></p>
+        <button
+          id="message-box-ok"
+          class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
+    <script type="module">
+      // Firebase imports
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        collection,
+        query,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+
+      // Firebase variables
+      let firebase = {
+        app: null,
+        db: null,
+        auth: null,
+        userId: null,
+        isAuthReady: false,
+      };
+
+      // Initialize Firebase and set up authentication listener
+      async function initializeFirebase() {
+        try {
+          const appId =
+            typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+          let firebaseConfig;
+          let usingDummyConfig = false; // Flag to track if dummy config is used
+
+          // Check if __firebase_config is defined and not an empty string
+          if (
+            typeof __firebase_config !== "undefined" &&
+            __firebase_config.trim() !== ""
+          ) {
+            try {
+              firebaseConfig = JSON.parse(__firebase_config);
+            } catch (e) {
+              console.error(
+                "Error parsing __firebase_config. Using dummy config:",
+                e
+              );
+              usingDummyConfig = true;
+              // Fallback to a dummy config if parsing fails
+              firebaseConfig = {
+                apiKey: "dummy-api-key",
+                authDomain: "dummy-project.firebaseapp.com",
+                projectId: "dummy-project",
+                storageBucket: "dummy-project.appspot.com",
+                messagingSenderId: "dummy-sender-id",
+                appId: "dummy-app-id",
+              };
+            }
+          } else {
+            console.warn(
+              "Firebase config is missing or empty. Using a dummy configuration. Real authentication and data persistence will not function."
+            );
+            usingDummyConfig = true;
+            // Provide a dummy config to prevent initializeApp from failing
+            firebaseConfig = {
+              apiKey: "dummy-api-key",
+              authDomain: "dummy-project.firebaseapp.com",
+              projectId: "dummy-project",
+              storageBucket: "dummy-project.appspot.com",
+              messagingSenderId: "dummy-sender-id",
+              appId: "dummy-app-id",
+            };
+          }
+
+          firebase.app = initializeApp(firebaseConfig);
+          firebase.db = getFirestore(firebase.app);
+          firebase.auth = getAuth(firebase.app);
+
+          // If using dummy config, skip Firebase authentication attempts
+          if (usingDummyConfig) {
+            console.warn(
+              "Running in simulation mode: Firebase authentication and data persistence are disabled due to dummy API key."
+            );
+            firebase.isAuthReady = false; // Explicitly set to false as no real auth is happening
+            firebase.userId = null; // No real Firebase user ID in simulation mode
+          } else {
+            onAuthStateChanged(firebase.auth, async (user) => {
+              if (user) {
+                firebase.userId = user.uid;
+                firebase.isAuthReady = true;
+                console.log(
+                  "Firebase authenticated. User ID:",
+                  firebase.userId
+                );
+                // Once authenticated, load study analytics if dashboard is visible
+                if (dashboardContent.style.display === "flex") {
+                  await calculateAndDisplayAnalytics();
+                }
+              } else {
+                // Attempt to sign in anonymously if no initial auth token
+                if (typeof __initial_auth_token !== "undefined") {
+                  try {
+                    await signInWithCustomToken(
+                      firebase.auth,
+                      __initial_auth_token
+                    );
+                  } catch (error) {
+                    console.error(
+                      "Error signing in with custom token, falling back to anonymous:",
+                      error
+                    );
+                    await signInAnonymously(firebase.auth); // Fallback to anonymous
+                  }
+                } else {
+                  await signInAnonymously(firebase.auth);
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.error("Failed to initialize Firebase:", error);
+          showMessageBox(
+            "Failed to initialize Firebase. Some features may not work."
+          );
+        }
+      }
+
+      // Call Firebase initialization
+      initializeFirebase();
+
+      // Global arrays to store academic goals and tasks
+      let academicGoals = [];
+      let tasks = [];
+
+      // Get references to the form containers, main content, and dashboard content
+      const signupFormContainer = document.getElementById(
+        "signup-form-container"
+      );
+      const loginFormContainer = document.getElementById(
+        "login-form-container"
+      );
+      const mainContent = document.getElementById("main-content");
+      const dashboardContent = document.getElementById("dashboard-content");
+
+      // Get references to the close buttons
+      const closeSignupBtn = document.getElementById("close-signup-btn");
+      const closeLoginBtn = document.getElementById("close-login-btn");
+
+      // Get references to the forms
+      const signupForm = document.getElementById("signup-form");
+      const loginForm = document.getElementById("login-form");
+
+      // Get references to dashboard elements
+      const dashboardUsername = document.getElementById("dashboard-username");
+      const dashboardUserEmail = document.getElementById(
+        "dashboard-user-email"
+      );
+      const logoutBtn = document.getElementById("logout-btn");
+      const newTaskInput = document.getElementById("new-task-input");
+      const addTaskBtn = document.getElementById("add-task-btn");
+      const taskList = document.getElementById("task-list");
+      const toggleTasksBtn = document.getElementById("toggle-tasks-btn");
+      const taskInputSection = document.getElementById("task-input-section"); // New reference for input section
+      const taskListSection = document.getElementById("task-list"); // Reference for the ul element
+      const taskToggleIcon = document.querySelector(
+        "#toggle-tasks-btn .task-toggle-icon"
+      );
+      const taskGoalSelect = document.getElementById("task-goal-select"); // Reference to the new goal dropdown
+
+      // Academic Goals elements
+      const addGoalBtn = document.getElementById("add-goal-btn");
+      const goalsList = document.getElementById("goals-list");
+      const addNewGoalCard = document.getElementById("add-new-goal-card");
+      const newGoalModalContainer = document.getElementById(
+        "new-goal-modal-container"
+      );
+      const closeNewGoalModalBtn = document.getElementById(
+        "close-new-goal-modal-btn"
+      );
+      const newGoalForm = document.getElementById("new-goal-form");
+
+      // Focus Timer elements
+      const timerDisplay = document.getElementById("timer-display");
+      const startTimerBtn = document.getElementById("start-timer-btn");
+      const pauseTimerBtn = document.getElementById("pause-timer-btn");
+      const resetTimerBtn = document.getElementById("reset-timer-btn");
+
+      let timerInterval;
+      let timeLeft = 25 * 60; // Default to 25 minutes for Pomodoro
+      let sessionMinutes = 25; // Duration of a single focus session
+
+      // Technique Carousel elements
+      const techniqueDisplayArea = document.getElementById(
+        "technique-display-area"
+      );
+      const prevTechniqueBtn = document.getElementById("prev-technique-btn");
+      const nextTechniqueBtn = document.getElementById("next-technique-btn");
+
+      const timingTechniques = [
+        {
+          name: "Pomodoro Technique",
+          description:
+            "Work for 25 minutes, then take a 5-minute break. After four 25-minute sessions, take a longer 15–30 minute break.",
+        },
+      ];
+      let currentTechniqueIndex = 0;
+
+      // Motivational Quotes elements
+      const motivationalQuoteText = document.getElementById(
+        "motivational-quote-text"
+      );
+      const motivationalQuoteAuthor = document.getElementById(
+        "motivational-quote-author"
+      );
+      const changeQuoteBtn = document.getElementById("change-quote-btn");
+
+      const motivationalQuotes = [
+        {
+          quote: "The expert in anything was once a beginner.",
+          author: "Helen Hayes",
+        },
+        {
+          quote: "The only way to do great work is to love what you do.",
+          author: "Steve Jobs",
+        },
+        {
+          quote: "Believe you can and you're halfway there.",
+          author: "Theodore Roosevelt",
+        },
+        {
+          quote:
+            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+          author: "Winston Churchill",
+        },
+        {
+          quote:
+            "The future belongs to those who believe in the beauty of their dreams.",
+          author: "Eleanor Roosevelt",
+        },
+      ];
+      let currentQuoteIndex = 0;
+
+      // Study Analytics elements
+      const totalStudyTimeElem = document.getElementById("total-study-time");
+      const totalStudyTimeSubtextElem = document.getElementById(
+        "total-study-time-subtext"
+      );
+      const mostProductiveDayElem = document.getElementById(
+        "most-productive-day"
+      );
+      const mostProductiveDaySubtextElem = document.getElementById(
+        "most-productive-day-subtext"
+      );
+      const focusRateElem = document.getElementById("focus-rate");
+      const focusRateSubtextElem =
+        document.getElementById("focus-rate-subtext");
+      // Removed: const weeklyStudyChartContainer = document.getElementById('weekly-study-chart-container');
+
+      // Get references to message box elements
+      const messageBoxOverlay = document.getElementById("message-box-overlay");
+      const messageBoxText = document.getElementById("message-box-text");
+      const messageBoxClose = document.getElementById("message-box-close");
+      const messageBoxOk = document.getElementById("message-box-ok");
+
+      // Function to show custom message box
+      function showMessageBox(message) {
+        messageBoxText.textContent = message;
+        messageBoxOverlay.style.display = "flex";
+      }
+
+      // Function to hide custom message box
+      function hideMessageBox() {
+        messageBoxOverlay.style.display = "none";
+      }
+
+      // Event listeners for message box close and OK buttons
+      messageBoxClose.addEventListener("click", hideMessageBox);
+      messageBoxOk.addEventListener("click", hideMessageBox);
+
+      // Function to show a form (modal)
+      function showForm(formContainer) {
+        // Hide any currently active forms first
+        signupFormContainer.classList.remove("active", "closing");
+        loginFormContainer.classList.remove("active", "closing");
+        newGoalModalContainer.classList.remove("active", "closing"); // Ensure new goal modal is also hidden
+
+        formContainer.classList.add("active");
+        // Main content remains visible underneath the modal
+      }
+
+      // Function to hide forms and manage content visibility
+      function hideFormsAndShowContent(contentToShow) {
+        // Add 'closing' class to trigger exit animation for any active form
+        const activeForm = signupFormContainer.classList.contains("active")
+          ? signupFormContainer
+          : loginFormContainer.classList.contains("active")
+          ? loginFormContainer
+          : newGoalModalContainer.classList.contains("active")
+          ? newGoalModalContainer
+          : null; // Check new goal modal
+
+        if (activeForm) {
+          activeForm.classList.add("closing");
+          activeForm.addEventListener("animationend", function handler() {
+            activeForm.classList.remove("active", "closing");
+            activeForm.removeEventListener("animationend", handler);
+            // After animation, manage content visibility
+            toggleMainAndDashboardContent(contentToShow);
+          });
+        } else {
+          // If no form was active, just manage content visibility directly
+          toggleMainAndDashboardContent(contentToShow);
+        }
+      }
+
+      // Function to toggle between main landing page and dashboard
+      function toggleMainAndDashboardContent(showDashboard) {
+        if (showDashboard) {
+          mainContent.style.display = "none";
+          dashboardContent.style.display = "flex"; // Use flex for dashboard layout
+          if (firebase.isAuthReady) {
+            calculateAndDisplayAnalytics();
+          }
+        } else {
+          mainContent.style.display = "block";
+          dashboardContent.style.display = "none";
+        }
+      }
+
+      // Initial state: show main content, hide dashboard
+      toggleMainAndDashboardContent(false);
+
+      // Event Listeners for "Sign Up" buttons (to show signup form)
+      document
+        .getElementById("signup-nav-btn")
+        .addEventListener("click", () => showForm(signupFormContainer));
+      document
+        .getElementById("signup-hero-btn")
+        .addEventListener("click", () => showForm(signupFormContainer));
+      document
+        .getElementById("signup-motivation-btn")
+        .addEventListener("click", () => showForm(signupFormContainer));
+      document
+        .getElementById("signup-footer-btn")
+        .addEventListener("click", () => showForm(signupFormContainer));
+
+      // Event Listeners for "Log In" buttons (to show login form)
+      document
+        .getElementById("login-hero-btn")
+        .addEventListener("click", () => showForm(loginFormContainer));
+      document
+        .getElementById("login-footer-btn")
+        .addEventListener("click", () => showForm(loginFormContainer));
+
+      // Event Listeners for switching between forms
+      document
+        .getElementById("switch-to-login")
+        .addEventListener("click", () => showForm(loginFormContainer));
+      document
+        .getElementById("switch-to-signup")
+        .addEventListener("click", () => showForm(signupFormContainer));
+
+      // Event Listeners for close buttons on forms (to hide forms and keep current content)
+      closeSignupBtn.addEventListener("click", () =>
+        hideFormsAndShowContent(false)
+      ); // Go back to landing
+      closeLoginBtn.addEventListener("click", () =>
+        hideFormsAndShowContent(false)
+      ); // Go back to landing
+
+      // Event Listener for "Home" link in navigation to hide forms and show main content
+      document
+        .getElementById("home-link")
+        .addEventListener("click", function (e) {
+          e.preventDefault(); // Prevent default link behavior
+          hideFormsAndShowContent(false); // Show main landing page
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+      // Event Listeners for navigation links to hide forms and scroll
+      document.querySelectorAll(".nav-link").forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          hideFormsAndShowContent(false); // Ensure landing page is visible before scrolling to section
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+
+      // --- Form Submission Handlers (Simulated Login/Signup) ---
+      signupForm.addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent actual form submission
+        const username = document.getElementById("signup-username").value; // Get username
+        const email = document.getElementById("signup-email").value;
+        const password = document.getElementById("signup-password").value;
+        const confirmPassword = document.getElementById(
+          "signup-confirm-password"
+        ).value;
+
+        if (password !== confirmPassword) {
+          showMessageBox("Passwords do not match!");
+          return;
+        }
+        if (password.length < 8) {
+          showMessageBox("Password must be at least 8 characters long.");
+          return;
+        }
+
+        // Simulate successful signup
+        showMessageBox("Sign Up Successful! Redirecting to dashboard...");
+        // Update dashboard user info
+        dashboardUserEmail.textContent = email;
+        dashboardUsername.textContent = username; // Use the provided username
+
+        // Hide forms and show dashboard after a short delay for message box
+        setTimeout(() => {
+          hideMessageBox();
+          hideFormsAndShowContent(true); // Show dashboard
+          renderGoals(); // Initial render of goals
+          renderTasks(); // Initial render of tasks
+        }, 1500); // Wait for message box to be seen
+      });
+
+      loginForm.addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent actual form submission
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
+
+        // Simulate successful login (very basic check)
+        if (email && password) {
+          // In a real app, this would involve backend authentication
+          showMessageBox("Login Successful! Redirecting to dashboard...");
+          // Update dashboard user info
+          dashboardUserEmail.textContent = email;
+          dashboardUsername.textContent = email.split("@")[0]; // Still derive username from email for login
+
+          // Hide forms and show dashboard after a short delay for message box
+          setTimeout(() => {
+            hideMessageBox();
+            hideFormsAndShowContent(true); // Show dashboard
+            renderGoals(); // Initial render of goals
+            renderTasks(); // Initial render of tasks
+          }, 1500);
+        } else {
+          showMessageBox("Please enter both email and password.");
+        }
+      });
+
+      // --- Dashboard Functionality ---
+      logoutBtn.addEventListener("click", function () {
+        showMessageBox("Logging out...");
+        setTimeout(() => {
+          hideMessageBox();
+          hideFormsAndShowContent(false); // Show main landing page
+          // Clear all data on logout
+          academicGoals = [];
+          tasks = [];
+          renderGoals(); // Re-render to show empty state
+          renderTasks(); // Re-render to show empty state
+        }, 1000);
+      });
+
+      // Function to calculate goal duration and remaining time
+      function getGoalDatesInfo(startDateString, endDateString) {
+        const startDate = new Date(startDateString);
+        const endDate = new Date(endDateString);
+        const now = new Date();
+
+        // Calculate total duration in days
+        const totalDurationMs = endDate - startDate;
+        const totalDays = Math.ceil(totalDurationMs / (1000 * 60 * 60 * 24));
+
+        // Calculate remaining duration in days
+        const remainingDurationMs = endDate - now;
+        const daysRemaining = Math.ceil(
+          remainingDurationMs / (1000 * 60 * 60 * 24)
+        );
+
+        return {
+          totalDays: totalDays > 0 ? totalDays : 0,
+          daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
+        };
+      }
+
+      // Function to render all academic goals
+      function renderGoals() {
+        goalsList.innerHTML = ""; // Clear existing goals
+        academicGoals.forEach((goal) => {
+          const { totalDays, daysRemaining } = getGoalDatesInfo(
+            goal.startDate,
+            goal.endDate
+          );
+          const goalCard = document.createElement("div");
+          goalCard.className =
+            "goal-card active-goal p-4 rounded-lg shadow-sm border-l-4 border-purple-500";
+          goalCard.dataset.goalId = goal.id; // Store ID for easy lookup
+
+          goalCard.innerHTML = `
+                    <div class="flex justify-between items-start w-full mb-2">
+                        <h4 class="font-semibold text-gray-800">${
+                          goal.title
+                        }</h4>
+                        <div class="edit-delete-icons flex space-x-2">
+                            <button class="text-gray-400 hover:text-blue-600 edit-goal-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-7.793 7.793-2.828 2.828-1.414 1.414a1 1 0 01-1.414-1.414l1.414-1.414 2.828-2.828 7.793-7.793zM14 7l-2 2 2 2 2-2-2-2z" />
+                                </svg>
+                            </button>
+                            <button class="text-gray-400 hover:text-red-600 delete-goal-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 w-full mb-2">${
+                      goal.description || "No description provided."
+                    }</p>
+                    <div class="text-xs text-gray-500 w-full mb-1">
+                        <span>Start: ${goal.startDate}</span><br>
+                        <span>End: ${goal.endDate}</span>
+                    </div>
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill bg-purple-500" style="width: ${
+                          goal.progress
+                        }%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 w-full mt-1">
+                        <span>${goal.progress}% Complete</span>
+                        <span>${daysRemaining} days left (Total: ${totalDays} days)</span>
+                    </div>
+                `;
+          goalsList.appendChild(goalCard);
+        });
+        // Add the "Add New Goal" card last
+        goalsList.appendChild(addNewGoalCard);
+
+        // Attach event listeners for delete and edit buttons
+        attachGoalEventListeners();
+        updateGoalDropdown(); // Update the task-goal dropdown whenever goals are rendered/changed
+      }
+
+      // Function to attach event listeners to dynamically created goal buttons
+      function attachGoalEventListeners() {
+        document.querySelectorAll(".delete-goal-btn").forEach((button) => {
+          button.onclick = (event) => {
+            const goalCard = event.target.closest(".goal-card");
+            const goalId = goalCard.dataset.goalId;
+            academicGoals = academicGoals.filter((goal) => goal.id !== goalId);
+            // Also remove any tasks associated with this goal
+            tasks = tasks.filter((task) => task.goalId !== goalId);
+            renderGoals(); // Re-render to reflect deletion
+            renderTasks(); // Re-render tasks as well
+            showMessageBox("Goal deleted successfully!");
+          };
+        });
+
+        document.querySelectorAll(".edit-goal-btn").forEach((button) => {
+          button.onclick = (event) => {
+            const goalCard = event.target.closest(".goal-card");
+            const goalId = goalCard.dataset.goalId;
+            const goalToEdit = academicGoals.find((goal) => goal.id === goalId);
+
+            if (goalToEdit) {
+              // Populate the new goal modal with existing data
+              document.getElementById("goal-title").value = goalToEdit.title;
+              document.getElementById("goal-description").value =
+                goalToEdit.description;
+              document.getElementById("goal-start-date").value =
+                goalToEdit.startDate;
+              document.getElementById("goal-end-date").value =
+                goalToEdit.endDate;
+
+              // Set a data attribute to indicate we are in edit mode and which goal to edit
+              newGoalForm.dataset.editingGoalId = goalId;
+              document.querySelector(
+                "#new-goal-modal-container h2"
+              ).textContent = "Edit Academic Goal";
+              document.querySelector(
+                '#new-goal-form button[type="submit"]'
+              ).textContent = "Update Goal";
+
+              showForm(newGoalModalContainer);
+            }
+          };
+        });
+      }
+
+      // Academic Goals functionality (Add/Edit)
+      addGoalBtn.addEventListener("click", () => {
+        // Reset form for new goal if not already in edit mode
+        newGoalForm.reset();
+        delete newGoalForm.dataset.editingGoalId;
+        document.querySelector("#new-goal-modal-container h2").textContent =
+          "New Academic Goal";
+        document.querySelector(
+          '#new-goal-form button[type="submit"]'
+        ).textContent = "Save Goal";
+        showForm(newGoalModalContainer);
+      });
+      addNewGoalCard.addEventListener("click", () => {
+        newGoalForm.reset();
+        delete newGoalForm.dataset.editingGoalId;
+        document.querySelector("#new-goal-modal-container h2").textContent =
+          "New Academic Goal";
+        document.querySelector(
+          '#new-goal-form button[type="submit"]'
+        ).textContent = "Save Goal";
+        showForm(newGoalModalContainer);
+      });
+      closeNewGoalModalBtn.addEventListener("click", () =>
+        hideFormsAndShowContent(true)
+      ); // Go back to dashboard
+
+      newGoalForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const goalTitle = document.getElementById("goal-title").value.trim();
+        const goalDescription = document
+          .getElementById("goal-description")
+          .value.trim();
+        const goalStartDate = document.getElementById("goal-start-date").value;
+        const goalEndDate = document.getElementById("goal-end-date").value;
+
+        if (goalTitle && goalStartDate && goalEndDate) {
+          // Basic date validation: ensure end date is not before start date
+          if (new Date(goalStartDate) > new Date(goalEndDate)) {
+            showMessageBox("End Date cannot be before Start Date!");
+            return;
+          }
+
+          const editingGoalId = newGoalForm.dataset.editingGoalId;
+
+          if (editingGoalId) {
+            // Edit existing goal
+            const goalIndex = academicGoals.findIndex(
+              (goal) => goal.id === editingGoalId
+            );
+            if (goalIndex !== -1) {
+              academicGoals[goalIndex].title = goalTitle;
+              academicGoals[goalIndex].description = goalDescription;
+              academicGoals[goalIndex].startDate = goalStartDate;
+              academicGoals[goalIndex].endDate = goalEndDate;
+              showMessageBox("Goal updated successfully!");
+            }
+            delete newGoalForm.dataset.editingGoalId; // Clear edit mode flag
+            document.querySelector("#new-goal-modal-container h2").textContent =
+              "New Academic Goal"; // Reset title
+            document.querySelector(
+              '#new-goal-form button[type="submit"]'
+            ).textContent = "Save Goal"; // Reset button text
+          } else {
+            // Add new goal
+            const newGoal = {
+              id: crypto.randomUUID(), // Generate a unique ID
+              title: goalTitle,
+              description: goalDescription,
+              startDate: goalStartDate,
+              endDate: goalEndDate,
+              progress: 0, // New goals start at 0%
+            };
+            academicGoals.push(newGoal);
+            showMessageBox("New goal added successfully!");
+          }
+
+          newGoalForm.reset();
+          hideFormsAndShowContent(true); // Hide modal and return to dashboard
+          renderGoals(); // Re-render all goals
+        } else {
+          showMessageBox(
+            "Please fill in Goal Title, Start Date, and End Date."
+          );
+        }
+      });
+
+      // --- Task Management Functions ---
+
+      // Function to update the goal selection dropdown in the task section
+      function updateGoalDropdown() {
+        taskGoalSelect.innerHTML =
+          '<option value="">No Associated Goal</option>'; // Clear and add default
+        academicGoals.forEach((goal) => {
+          const option = document.createElement("option");
+          option.value = goal.id;
+          option.textContent = goal.title;
+          taskGoalSelect.appendChild(option);
+        });
+      }
+
+      // Function to render all tasks
+      function renderTasks() {
+        taskList.innerHTML = ""; // Clear existing tasks
+        tasks.forEach((task) => {
+          const listItem = document.createElement("li");
+          listItem.className = `flex items-center justify-between bg-gray-100 p-3 rounded-md shadow-sm ${
+            task.completed ? "task-completed" : ""
+          }`;
+          listItem.dataset.taskId = task.id; // Store task ID
+
+          const associatedGoalTitle = task.goalId
+            ? academicGoals.find((g) => g.id === task.goalId)?.title
+            : "";
+          const goalDisplay = associatedGoalTitle
+            ? `<span class="text-xs text-gray-500 ml-2">(${associatedGoalTitle})</span>`
+            : "";
+
+          listItem.innerHTML = `
+                    <div class="flex items-center">
+                        <input type="checkbox" class="task-checkbox mr-3 h-5 w-5 text-green-600 rounded focus:ring-green-500" ${
+                          task.completed ? "checked" : ""
+                        }>
+                        <span class="task-text text-gray-700">${
+                          task.text
+                        }</span>
+                        ${goalDisplay}
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 delete-task-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                `;
+          taskList.appendChild(listItem);
+
+          // Add event listener for the new delete button
+          listItem
+            .querySelector(".delete-task-btn")
+            .addEventListener("click", function () {
+              const taskIdToDelete = listItem.dataset.taskId;
+              tasks = tasks.filter((task) => task.id !== taskIdToDelete);
+              renderTasks();
+            });
+
+          // Add event listener for the new checkbox
+          listItem
+            .querySelector(".task-checkbox")
+            .addEventListener("change", function () {
+              const taskIdToUpdate = listItem.dataset.taskId;
+              const task = tasks.find((t) => t.id === taskIdToUpdate);
+              if (task) {
+                task.completed = this.checked;
+                if (this.checked) {
+                  listItem.classList.add("task-completed");
+                  // Update goal progress if associated
+                  if (task.goalId) {
+                    const associatedGoal = academicGoals.find(
+                      (g) => g.id === task.goalId
+                    );
+                    if (associatedGoal) {
+                      // Increment progress by a fixed amount (e.g., 10%)
+                      // You might want a more sophisticated logic based on number of tasks per goal
+                      associatedGoal.progress = Math.min(
+                        associatedGoal.progress + 10,
+                        100
+                      );
+                      renderGoals(); // Re-render goals to update progress bar
+                    }
+                  }
+                } else {
+                  listItem.classList.remove("task-completed");
+                  // Decrement goal progress if unchecked
+                  if (task.goalId) {
+                    const associatedGoal = academicGoals.find(
+                      (g) => g.id === task.goalId
+                    );
+                    if (associatedGoal) {
+                      associatedGoal.progress = Math.max(
+                        associatedGoal.progress - 10,
+                        0
+                      );
+                      renderGoals();
+                    }
+                  }
+                }
+              }
+            });
+        });
+      }
+
+      addTaskBtn.addEventListener("click", function () {
+        const taskText = newTaskInput.value.trim();
+        const selectedGoalId = taskGoalSelect.value; // Get selected goal ID
+
+        if (taskText) {
+          const newTask = {
+            id: crypto.randomUUID(),
+            text: taskText,
+            completed: false,
+            goalId: selectedGoalId || null, // Store goal ID or null if none selected
+          };
+          tasks.push(newTask);
+          renderTasks(); // Call a new function to render tasks
+          newTaskInput.value = ""; // Clear input
+          taskGoalSelect.value = ""; // Reset dropdown
+        } else {
+          showMessageBox("Please enter a task!");
+        }
+      });
+
+      // Toggle tasks section visibility
+      toggleTasksBtn.addEventListener("click", function () {
+        // Only toggle the task list visibility
+        taskListSection.classList.toggle("hidden");
+        taskToggleIcon.classList.toggle("rotate");
+      });
+
+      // --- Focus Timer Functions ---
+      function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      async function startTimer() {
+        if (timerInterval) return; // Prevent multiple intervals
+        timerInterval = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            showMessageBox("Time's up! Great job focusing!");
+            // When timer finishes, save the study time
+            saveStudyTime(sessionMinutes);
+            resetTimer(); // Reset timer for next session
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = sessionMinutes * 60; // Reset to default session minutes
+        updateTimerDisplay();
+      }
+
+      startTimerBtn.addEventListener("click", startTimer);
+      pauseTimerBtn.addEventListener("click", pauseTimer);
+      resetTimerBtn.addEventListener("click", resetTimer);
+
+      // Initialize timer display on load
+      updateTimerDisplay();
+
+      // --- Study Analytics Functions (Firebase Integration) ---
+
+      // Helper function to get ISO week number and year
+      function getISOWeek(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+        return weekNo;
+      }
+
+      function getISOWeekYear(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        return d.getUTCFullYear();
+      }
+
+      async function saveStudyTime(minutes) {
+        if (!firebase.isAuthReady || !firebase.userId) {
+          console.warn(
+            "Firebase not ready or user not authenticated. Cannot save study time."
+          );
+          return;
+        }
+
+        const today = new Date();
+        const dateString = today.toISOString().split("T")[0]; // YYYY-MM-DD
+        const docRef = doc(
+          firebase.db,
+          `artifacts/${__app_id}/users/${firebase.userId}/studyTimes`,
+          dateString
+        );
+
+        try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const currentMinutes = docSnap.data().minutesStudied || 0;
+            await setDoc(docRef, {
+              minutesStudied: currentMinutes + minutes,
+              lastUpdated: new Date(),
+            });
+          } else {
+            await setDoc(docRef, {
+              minutesStudied: minutes,
+              lastUpdated: new Date(),
+            });
+          }
+          console.log(
+            `Study time updated for ${dateString}: +${minutes} minutes.`
+          );
+          await calculateAndDisplayAnalytics(); // Recalculate analytics after saving
+        } catch (e) {
+          console.error("Error updating study time:", e);
+        }
+      }
+
+      async function getStudyData() {
+        if (!firebase.isAuthReady || !firebase.userId) {
+          console.warn(
+            "Firebase not ready or user not authenticated. Cannot get study data."
+          );
+          return [];
+        }
+
+        const studyTimesCollectionRef = collection(
+          firebase.db,
+          `artifacts/${__app_id}/users/${firebase.userId}/studyTimes`
+        );
+        const q = query(studyTimesCollectionRef); // No orderBy to avoid index issues
+
+        const querySnapshot = await getDocs(q);
+        const studyData = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          studyData.push({
+            date: doc.id, // YYYY-MM-DD
+            minutesStudied: data.minutesStudied,
+          });
+        });
+        return studyData;
+      }
+
+      async function calculateAndDisplayAnalytics() {
+        if (!firebase.isAuthReady || !firebase.userId) {
+          console.warn(
+            "Firebase not ready or user not authenticated. Analytics will not load."
+          );
+          return;
+        }
+
+        totalStudyTimeElem.textContent = "--h --m";
+        totalStudyTimeSubtextElem.textContent = "";
+        mostProductiveDayElem.textContent = "--";
+        mostProductiveDaySubtextElem.textContent = "";
+        focusRateElem.textContent = "--%";
+        focusRateSubtextElem.textContent = "";
+        // Removed: weeklyStudyChartContainer.innerHTML = ''; // Clear previous chart
+
+        const allStudyData = await getStudyData();
+
+        const today = new Date();
+        const currentWeek = getISOWeek(today);
+        const currentYear = getISOWeekYear(today);
+        const prevWeek =
+          currentWeek === 1
+            ? getISOWeek(new Date(today.getFullYear() - 1, 11, 31))
+            : currentYear - 1;
+        const prevYear = currentWeek === 1 ? currentYear - 1 : currentYear;
+
+        let currentWeekTotalStudyMinutes = 0;
+        let prevWeekTotalStudyMinutes = 0;
+        const dailyStudyMinutes = {}; // { 'YYYY-MM-DD': minutes }
+        const daysOfWeekStudyMinutes = {
+          Sunday: 0,
+          Monday: 0,
+          Tuesday: 0,
+          Wednesday: 0,
+          Thursday: 0,
+          Friday: 0,
+          Saturday: 0,
+        };
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; // Shorter names for chart
+
+        allStudyData.forEach((data) => {
+          const studyDate = new Date(data.date + "T00:00:00"); // Ensure UTC for consistent date parsing
+          const week = getISOWeek(studyDate);
+          const year = getISOWeekYear(studyDate);
+          const dayOfWeekIndex = studyDate.getDay(); // 0 for Sunday, 1 for Monday, etc.
+
+          if (year === currentYear && week === currentWeek) {
+            currentWeekTotalStudyMinutes += data.minutesStudied;
+            daysOfWeekStudyMinutes[dayNames[dayOfWeekIndex]] +=
+              data.minutesStudied;
+          } else if (year === prevYear && week === prevWeek) {
+            prevWeekTotalStudyMinutes += data.minutesStudied;
+          }
+        });
+
+        // Calculate Total Study Time
+        const totalHours = Math.floor(currentWeekTotalStudyMinutes / 60);
+        const remainingMinutes = currentWeekTotalStudyMinutes % 60;
+        totalStudyTimeElem.textContent = `${totalHours}h ${remainingMinutes}m`;
+
+        if (prevWeekTotalStudyMinutes > 0) {
+          const diffMinutes =
+            currentWeekTotalStudyMinutes - prevWeekTotalStudyMinutes;
+          const diffHours = Math.floor(Math.abs(diffMinutes) / 60);
+          const diffRemMinutes = Math.abs(diffMinutes) % 60;
+          let diffText = "";
+          if (diffMinutes > 0) {
+            diffText = `+${diffHours}h ${diffRemMinutes}m from last week`;
+          } else if (diffMinutes < 0) {
+            diffText = `-${diffHours}h ${diffRemMinutes}m from last week`;
+          } else {
+            diffText = `Same as last week`;
+          }
+          totalStudyTimeSubtextElem.textContent = diffText;
+        } else if (currentWeekTotalStudyMinutes > 0) {
+          totalStudyTimeSubtextElem.textContent = `First week of tracking!`;
+        } else {
+          totalStudyTimeSubtextElem.textContent = `No study data yet.`;
+        }
+
+        // Calculate Most Productive Day
+        let mostProductiveDay = "N/A";
+        let maxMinutes = 0;
+        let mostProductiveDayAvg = 0;
+        let daysWithStudy = 0;
+
+        for (const day in daysOfWeekStudyMinutes) {
+          if (daysOfWeekStudyMinutes[day] > maxMinutes) {
+            maxMinutes = daysOfWeekStudyMinutes[day];
+            mostProductiveDay = day;
+          }
+          if (daysOfWeekStudyMinutes[day] > 0) {
+            daysWithStudy++;
+          }
+        }
+
+        if (maxMinutes > 0) {
+          mostProductiveDayElem.textContent = mostProductiveDay;
+          mostProductiveDayAvg =
+            maxMinutes / (daysWithStudy > 0 ? daysWithStudy : 1); // Average of productive days
+          mostProductiveDaySubtextElem.textContent = `${Math.floor(
+            mostProductiveDayAvg
+          )}m average on productive days`;
+        } else {
+          mostProductiveDayElem.textContent = "N/A";
+          mostProductiveDaySubtextElem.textContent = "No study data yet.";
+        }
+
+        // Calculate Focus Rate
+        if (prevWeekTotalStudyMinutes === 0) {
+          if (currentWeekTotalStudyMinutes > 0) {
+            focusRateElem.textContent = "N/A"; // Cannot calculate percentage without previous data
+            focusRateSubtextElem.textContent = "Great start this week!";
+          } else {
+            focusRateElem.textContent = "N/A";
+            focusRateSubtextElem.textContent = "No study data yet.";
+          }
+        } else {
+          const focusRate =
+            (currentWeekTotalStudyMinutes / prevWeekTotalStudyMinutes) * 100;
+          focusRateElem.textContent = `${focusRate.toFixed(0)}%`;
+          if (focusRate >= 100) {
+            focusRateSubtextElem.textContent = "Excellent focus this week!";
+          } else {
+            focusRateSubtextElem.textContent = "Focus is down from last week.";
+          }
+        }
+
+        // Removed: Render Weekly Study Hours Chart
+        // const maxChartHeight = 120; // Max height for the bars in pixels
+        // const maxMinutesInAnyDay = Math.max(...Object.values(daysOfWeekStudyMinutes));
+
+        // dayNames.forEach(day => {
+        //     const minutes = daysOfWeekStudyMinutes[day] || 0;
+        //     const barHeight = maxMinutesInAnyDay > 0 ? (minutes / maxMinutesInAnyDay) * maxChartHeight : 5; // Min height 5px
+        //     const hours = Math.floor(minutes / 60);
+        //     const mins = minutes % 60;
+        //     const displayValue = minutes > 0 ? `${hours}h ${mins}m` : '0h 0m';
+
+        //     const barWrapper = document.createElement('div');
+        //     barWrapper.className = 'chart-bar-wrapper';
+        //     barWrapper.innerHTML = `
+        //         <div class="chart-bar" style="height: ${barHeight}px;">
+        //             <span class="chart-bar-value">${displayValue}</span>
+        //         </div>
+        //         <span class="chart-bar-label">${day}</span>
+        //     `;
+        //     weeklyStudyChartContainer.appendChild(barWrapper);
+        // });
+      }
+
+      // --- Technique Carousel Functions ---
+      function renderTechnique() {
+        const technique = timingTechniques[currentTechniqueIndex];
+        techniqueDisplayArea.innerHTML = `
+                <div class="technique-slide active">
+                    <h4 class="font-medium text-lg mb-2">${technique.name}:</h4>
+                    <p class="text-sm">${technique.description}</p>
+                </div>
+            `;
+      }
+
+      function showNextTechnique() {
+        currentTechniqueIndex =
+          (currentTechniqueIndex + 1) % timingTechniques.length;
+        renderTechnique();
+      }
+
+      function showPrevTechnique() {
+        currentTechniqueIndex =
+          (currentTechniqueIndex - 1 + timingTechniques.length) %
+          timingTechnique.length;
+        renderTechnique();
+      }
+
+      prevTechniqueBtn.addEventListener("click", showPrevTechnique);
+      nextTechniqueBtn.addEventListener("click", showNextTechnique);
+
+      // Initial render of the first technique
+      renderTechnique();
+
+      // --- Motivational Quote Functions ---
+      function renderMotivationalQuote() {
+        const quote = motivationalQuotes[currentQuoteIndex];
+        motivationalQuoteText.textContent = `"${quote.quote}"`;
+        motivationalQuoteAuthor.textContent = `— ${quote.author}`;
+      }
+
+      function changeMotivationalQuote() {
+        currentQuoteIndex = (currentQuoteIndex + 1) % motivationalQuotes.length;
+        renderMotivationalQuote();
+      }
+
+      changeQuoteBtn.addEventListener("click", changeMotivationalQuote);
+
+      // Initial render of the first motivational quote
+      renderMotivationalQuote();
+
+      // Example motivation timer (existing functionality - still runs in background)
+      function updateMotivationTimer() {
+        const now = new Date();
+        const examDate = new Date(now.getFullYear(), now.getMonth() + 2, 15); // Example exam date 2 months from now
+        const timeDiff = examDate - now;
+
+        const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        // Check if element exists before updating (it's on the main content, so it might not be visible)
+        const daysUntilElement = document.getElementById("days-until");
+        if (daysUntilElement) {
+          daysUntilElement.textContent = daysUntil;
+        }
+      }
+
+      // Initialize motivation timer
+      updateMotivationTimer();
+      setInterval(updateMotivationTimer, 86400000); // Update daily
+
+      // Example function to simulate goal completion (existing functionality - still runs in background)
+      function simulateGoalCompletion() {
+        const progressBars = document.querySelectorAll(".progress-fill");
+        progressBars.forEach((bar) => {
+          const currentWidth = parseInt(bar.style.width) || 0; // Initialize if not set
+          if (currentWidth < 100) {
+            bar.style.width = `${Math.min(currentWidth + 10, 100)}%`;
+          }
+        });
+      }
+
+      // Call periodically to simulate progress (would be removed in production)
+      setInterval(simulateGoalCompletion, 5000);
+    </script>
+  </body>
+</html>
